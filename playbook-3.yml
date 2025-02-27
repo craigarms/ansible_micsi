@@ -1,0 +1,48 @@
+---
+- name: Deploy Proxmox VMs
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Create new container automatically selecting the next available vmid.
+      delegate_to: localhost
+      community.general.proxmox:
+        node: 'pve'
+        api_user: 'root@pam'
+        api_password: 'admin'
+        api_host: '192.168.16.130'
+        password: '123456'
+        hostname: "{{ inventory_hostname }}"
+        ostemplate: 'local:vztmpl/debian-11-standard_11.7-1_amd64.tar.zst'
+        netif:
+          net0: "name=eth0,gw={{ primary_ip4.split('.')[0:3] | join('.') }}.2,ip={{ primary_ip4 }}/24,bridge=vmbr0"
+        disk: "{{ disk }}"
+        storage: local-lvm
+        cpus: "{{ vcpus | int }}"
+        memory: "{{ memory }}"
+      register: vm_output
+
+    - name: Wait for 10 seconds
+      ansible.builtin.pause:
+        seconds: 10
+
+    - name: Start new container
+      delegate_to: localhost
+      community.general.proxmox:
+        vmid: "{{ vm_output.vmid }}"
+        state: started
+        api_user: 'root@pam'
+        api_password: 'admin'
+        api_host: '192.168.16.130'
+
+    - name: Assign tag to Netbox
+      delegate_to: localhost
+      netbox.netbox.netbox_virtual_machine:
+        netbox_url: http://192.168.52.129:8000
+        netbox_token: 37a6dce804fc74cc22db83ece00e3e6f68f6fa45
+        data:
+          name: "{{ inventory_hostname }}"
+          tags:
+            - ansible_deployed
+      tags:
+        - netbox

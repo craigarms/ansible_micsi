@@ -3,7 +3,10 @@ api_endpoint: http://192.168.52.129:8000
 token: 37a6dce804fc74cc22db83ece00e3e6f68f6fa45
 validate_certs: false
 group_by:
-  - device_roles
+  - tags
   - platforms
   - device_types
+query_filters:
+  - tag__n: ansible_deployed
+  - cluster_id: 1
 config_context: true
