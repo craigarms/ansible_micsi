@@ -45,9 +45,27 @@
       cisco.ios.command:
         commands:
           - show vlan brief
-      register: apps
+      register: vlans
 
     - name: Debug Vlans
       ansible.builtin.debug:
-        var: vars.apps
-      when: '"\n100 " in vars.apps.stdout[0]'
+        var: vars.vlans
+      when: '"\n100 " in vars.vlans.stdout[0]'
+
+    - name: Save Vlans to local file
+      delegate_to: localhost
+      ansible.builtin.copy:
+        dest: cisco_vlans.txt
+        content: "{{ vars.vlans.stdout[0] }}"
+
+    - name: Gather facts for l2 interfaces
+      cisco.ios.ios_l2_interfaces:
+        config:
+        state: gathered
+      register: gathered_vlans
+      
+    - name: Save Vlans to local file
+      delegate_to: localhost
+      ansible.builtin.copy:
+        dest: gathered_vlans_{{ ansible_host }}.txt
+        content: "{{ vars.gathered_vlans }}"
