@@ -1,0 +1,53 @@
+---
+# Cisco Playbook:
+# Create Vlans from Variable
+# Add ports for variables to variable vlan
+
+
+- name: Connection to Cisco devices
+  hosts: platforms_ios
+  gather_facts: false
+  vars:
+    ansible_connection: ansible.netcommon.network_cli
+    ansible_network_os: cisco.ios.ios
+  vars_files:
+    - secrets.yml
+
+  tasks:
+    - name: Gather Facts
+      cisco.ios.ios_facts:
+
+    - name: Create Vlans from Variable
+      cisco.ios.ios_vlans:
+        config:
+          - vlan_id: "{{ item }}"
+            state: active
+      loop: "{{ vlan_list }}"
+
+    - name: Create Vlans from List of Dict
+      cisco.ios.ios_vlans:
+        config:
+          - vlan_id: "{{ item.vlan_id }}"
+            name: "{{ item.vlan_name }}"
+            state: active
+      loop: "{{ named_vlans }}"
+
+    - name: Add ports for variables to variable vlan
+      cisco.ios.l2_interfaces:
+        config:
+          - name: "{{ item.port_name }}"
+            mode: access
+            access:
+              vlan: "{{ item.vlan_id }}"
+      loop: "{{ vlan_ports }}"
+
+    - name: Get Vlans
+      cisco.ios.command:
+        commands:
+          - show vlan brief
+      register: apps
+
+    - name: Debug Vlans
+      ansible.builtin.debug:
+        var: vars.apps
+      when: '"\n100 " in vars.apps.stdout[0]'

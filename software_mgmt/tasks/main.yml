@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for software_mgmt
+- name: Install Mandatory Software
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ vars.apps }}"

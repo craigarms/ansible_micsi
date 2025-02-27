@@ -1,0 +1,6 @@
+Hi {{ item }}, Welcome to CESI !
+
+We have preinstalled the following apps:
+{% for app in apps %}
+    - {{ app }}
+{% endfor %}

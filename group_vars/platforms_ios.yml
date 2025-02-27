@@ -1,0 +1,21 @@
+---
+vlan_list:
+  - 10
+  - 20
+  - 30
+
+named_vlans:
+  - vlan_id: 40
+    vlan_name: Printers
+  - vlan_id: 50
+    vlan_name: Users
+  - vlan_id: 60
+    vlan_name: Servers
+  
+vlan_ports:
+  - port_name: E0/1
+    vlan_id: 10
+  - port_name: E0/2
+    vlan_id: 20
+  - port_name: E0/3
+    vlan_id: 30

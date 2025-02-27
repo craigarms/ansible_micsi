@@ -1,0 +1,11 @@
+---
+apps:
+  - python3
+  - bind9-dnsutils
+  - tcpdump
+
+users:
+  - craig
+  - john
+  - bob
+  - alice

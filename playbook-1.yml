@@ -1,0 +1,59 @@
+---
+#   Linux Playbook:
+##### Create/Assert Base software is installed based on Variables
+##### Create/Assert Users Exists based on variables
+##### Add users to group named MICSI
+##### Create welcome file in each user's home saying "Welcome to cesi"
+
+- name: Check access to Linux hosts
+  hosts: device_types_debian
+  become: true
+  vars:
+    apps:
+      - 7zip
+  vars_files:
+    - group_vars/linux.yml
+    - secrets.yml
+
+  tasks:
+    - name: Install Mandatory Software
+      ansible.builtin.include_role:
+        name: software_mgmt
+
+    - name: Ensure group "MICSI" exists
+      ansible.builtin.group:
+        name: MICSI
+        state: present
+
+    - name: Create/Assert Users Exists based on variables And Add users to group named MICSI
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups:
+          - MICSI
+        append: true
+        create_home: yes
+      loop: "{{ users }}"
+
+    - name: Create welcome file in each user's home saying "Welcome to cesi"
+      ansible.builtin.copy:
+        dest: /home/{{ item }}/welcome.txt
+        content: Hi {{ item }}, Welcome to Cesi
+      loop: "{{ users }}"
+
+    - name: Create welcome file in each user's home saying "Welcome to cesi"
+      ansible.builtin.template:
+        src: welcome.j2
+        dest: /home/{{ item }}/welcome2.txt
+        owner: "{{ item }}"
+        group: MICSI
+      loop: "{{ users }}"
+
+    - name: Assert that we welcomed users
+      ansible.builtin.lineinfile:
+        path: /home/{{ item }}/welcome3.txt
+        regexp: 'Welcome to Cesi$'
+        line: Welcome back to CESI
+        create: true
+      loop: "{{ users }}"
+      tags:
+        - line

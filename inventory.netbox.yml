@@ -1,0 +1,8 @@
+plugin: netbox.netbox.nb_inventory
+api_endpoint: http://192.168.52.129:8000
+token: 37a6dce804fc74cc22db83ece00e3e6f68f6fa45
+validate_certs: false
+group_by:
+  - device_roles
+  - platforms
+  - device_types
