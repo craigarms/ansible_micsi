@@ -21,10 +21,12 @@
         cpus: "{{ vcpus | int }}"
         memory: "{{ memory }}"
       register: vm_output
+      when: primary_ip4 is defined
 
     - name: Wait for 10 seconds
       ansible.builtin.pause:
         seconds: 10
+      when: vm_output is defined
 
     - name: Start new container
       delegate_to: localhost
@@ -34,6 +36,7 @@
         api_user: 'root@pam'
         api_password: 'admin'
         api_host: '192.168.16.130'
+      when: vm_output is defined
 
     - name: Assign tag to Netbox
       delegate_to: localhost
@@ -44,5 +47,6 @@
           name: "{{ inventory_hostname }}"
           tags:
             - ansible_deployed
+      when: vm_output is defined
       tags:
         - netbox
