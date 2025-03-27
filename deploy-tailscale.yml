@@ -2,12 +2,12 @@
 - name: Deploy tailscale
   hosts: all
   become: true
-  vars:
-    - tailscale:
-        server: http://vpn.cesi.ztn.ovh
-        accept_dns: true
-        accept_routes: true
-        user: craig
+  # vars:
+  #   - tailscale:
+  #       server: http://vpn.cesi.ztn.ovh
+  #       accept_dns: true
+  #       accept_routes: true
+  #       user: craig
 
   tasks:
     - name: Install Curl

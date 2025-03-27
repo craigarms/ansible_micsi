@@ -4,6 +4,11 @@ all:
     ansible_user: craig
     ansible_password: Pass1234
     ansible_become_password: Pass1234
+    tailscale:
+      server: http://vpn.cesi.ztn.ovh
+      accept_dns: true
+      accept_routes: true
+      user: craig
 
   hosts:
     ubuntu:
