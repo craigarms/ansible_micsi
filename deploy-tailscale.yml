@@ -14,17 +14,38 @@
       ansible.builtin.apt:
         name: curl
         state: present
+      
+    - name: Install gnupg
+      ansible.builtin.apt:
+        name: gnupg
+        state: present
+      when: ansible_facts.distribution == "Debian"
 
     - name: Add APT Key for Tailscale https://pkgs.tailscale.com/$TRACK/$OS/$VERSION.asc
       ansible.builtin.apt_key:
         url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.lsb.codename }}.asc
         state: present
+      when: ansible_facts.distribution == "Ubuntu"
+
+    - name: Add APT Key for Tailscale https://pkgs.tailscale.com/$TRACK/$OS/$VERSION..noarmor.gpg
+      ansible.builtin.apt_key:
+        url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.distribution_release }}.noarmor.gpg
+        state: present
+      when: ansible_facts.distribution == "Debian"
 
     - name: Download https://pkgs.tailscale.com/$TRACK/$OS/$VERSION.list
       ansible.builtin.get_url:
         url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.lsb.codename }}.list
         dest: /etc/apt/sources.list.d/tailscale.list
         mode: 0644
+      when: ansible_facts.distribution == "Ubuntu"
+
+    - name: Download https://pkgs.tailscale.com/$TRACK/$OS/$VERSION.list
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.distribution_release }}.list
+        dest: /etc/apt/sources.list.d/tailscale.list
+        mode: 0644
+      when: ansible_facts.distribution == "Debian"
 
     - name: Install tailscale tailscale-archive-keyring
       ansible.builtin.apt:
