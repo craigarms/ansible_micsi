@@ -1,0 +1,9 @@
+---
+- name: Debug Facts
+  hosts: all
+
+  tasks:
+    - name: Ansible Facts
+      debug:
+        var: ansible_facts
+        

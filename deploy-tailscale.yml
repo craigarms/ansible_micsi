@@ -1,0 +1,55 @@
+---
+- name: Deploy tailscale
+  hosts: all
+  become: true
+  vars:
+    - tailscale:
+        server: http://vpn.cesi.ztn.ovh
+        accept_dns: true
+        accept_routes: true
+        user: craig
+
+  tasks:
+    - name: Install Curl
+      ansible.builtin.apt:
+        name: curl
+        state: present
+
+    - name: Add APT Key for Tailscale https://pkgs.tailscale.com/$TRACK/$OS/$VERSION.asc
+      ansible.builtin.apt_key:
+        url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.lsb.codename }}.asc
+        state: present
+
+    - name: Download https://pkgs.tailscale.com/$TRACK/$OS/$VERSION.list
+      ansible.builtin.get_url:
+        url: https://pkgs.tailscale.com/stable/{{ ansible_facts.distribution | lower }}/{{ ansible_facts.lsb.codename }}.list
+        dest: /etc/apt/sources.list.d/tailscale.list
+        mode: 0644
+
+    - name: Install tailscale tailscale-archive-keyring
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - tailscale
+        - tailscale-archive-keyring
+
+    - name: Enable Tailscaled service
+      ansible.builtin.service:
+        name: tailscaled
+        enabled: true
+        state: started
+
+    - name: Use Headscale CLI to generate PreAuthKey
+      delegate_to: localhost
+      become: false
+      ansible.builtin.command: docker exec headscale headscale preauthkeys create -u {{ tailscale.user }}
+      register: preauthkey
+      tags:
+        - preauth
+
+    - name: tailscale login with preauthkey
+      ansible.builtin.command: tailscale up --auth-key {{ preauthkey.stdout }} --login-server {{ tailscale.server }} --accept-dns={{ tailscale.accept_dns }} --accept-routes={{ tailscale.accept_routes }}
+
+    # - name: tailscale up
+    #   ansible.builtin.command: tailscale up

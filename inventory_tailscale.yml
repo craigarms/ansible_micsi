@@ -1,0 +1,8 @@
+---
+all:
+  hosts:
+    ubuntu:
+      ansible_host: 192.168.254.101
+      ansible_user: craig
+      ansible_password: Pass1234
+      ansible_become_password: Pass1234
