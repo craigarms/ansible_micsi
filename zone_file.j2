@@ -1,0 +1,9 @@
+;
+; Zone file for zone {{ zone }}
+;
+
+$TTL 3600
+
+{% for record in records -%}
+{{ record.name.ljust(32) }}    {{ (record.ttl|string if record.ttl is not none else '').ljust(8) }} IN {{ record.type.ljust(8) }}    {{ record.value }}
+{% endfor %}

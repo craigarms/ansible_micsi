@@ -1,0 +1,17 @@
+---
+- name: Generate Zone file for BIND from Netbox
+  hosts: localhost
+  vars:
+    zone: cesi.ztn.ovh
+
+  tasks:
+    - name: Get Records for Variabilized zone
+      ansible.builtin.template:
+        src: zone_file.j2
+        dest: "{{ zone }}.db"
+      vars:
+        records: "{{ query('netbox.netbox.nb_lookup',
+                                    'records', api_filter='zone=' + zone,
+                                    plugin='netbox_dns',
+                                    api_endpoint='https://netbox.cesi.ztn.ovh/',
+                                    token='cd7fe9de040216e50de46d3deac89d415f9221fa') | map(attribute='value') }}"

@@ -1,0 +1,10 @@
+;
+; Zone file for zone cesi.ztn.ovh
+;
+
+$TTL 3600
+
+@                                            IN NS          ns.cesi.ztn.ovh.
+@                                   86400    IN SOA         ns.cesi.ztn.ovh. postmaster.ztn.ovh. 1743081573 43200 7200 2419200 3600
+login                                        IN CNAME       vpn.cesi.ztn.ovh.
+vpn                                          IN A           192.168.254.131
